@@ -7,6 +7,9 @@
     <h1>{{ problem.title }}</h1>
     <p class="byline">{{ problem.display_name }} が投稿</p>
     <div class="problem-body">{{ problem.body }}</div>
+    {% if problem.image_url %}
+    <img class="problem-image" src="{{ url_for('media', key=problem.image_url) }}" alt="問題に添付された画像">
+    {% endif %}
     {% if problem.answer %}
     <details class="answer-panel">
       <summary>正解・模範解答を見る</summary>

@@ -3,7 +3,7 @@
 {% block content %}
 <section class="form-card card">
   <h1>{{ "問題を編集" if problem else "問題を投稿" }}</h1>
-  <form method="post">
+  <form method="post" enctype="multipart/form-data">
     {% if group_id %}<input type="hidden" name="group_id" value="{{ group_id }}">{% endif %}
     <label>タイトル<input name="title" value="{{ problem.title if problem else '' }}" required></label>
     <div class="form-grid">
@@ -20,6 +20,12 @@
     <label>問題文<textarea name="body" rows="6" required>{{ problem.body if problem else '' }}</textarea></label>
     <label>正解・模範解答<input name="answer" value="{{ problem.answer if problem else '' }}"></label>
     <label>解説<textarea name="explanation" rows="5">{{ problem.explanation if problem else '' }}</textarea></label>
+    <label>問題画像（JPG、PNG、WebP、5MB以下）
+      <input name="image" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
+    </label>
+    {% if problem and problem.image_url %}
+    <p>登録済みの画像</p><img class="problem-image" src="{{ url_for('media', key=problem.image_url) }}" alt="問題に添付された画像">
+    {% endif %}
     <button type="submit">{{ "更新する" if problem else "投稿する" }}</button>
   </form>
 </section>

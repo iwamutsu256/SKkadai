@@ -1,5 +1,6 @@
-import tempfile
 from pathlib import Path
+
+from io import BytesIO
 
 import pytest
 
@@ -10,8 +11,9 @@ from app import create_app
 def client(tmp_path):
     app = create_app({
         "TESTING": True,
-        "DATABASE": str(tmp_path / "test.sqlite3"),
+        "UPLOAD_FOLDER": str(tmp_path / "uploads"),
         "SECRET_KEY": "test-secret",
+        "SEED_DEMO_DATA": True,
     })
     with app.test_client() as client:
         yield client
@@ -45,7 +47,11 @@ def test_create_answer_and_profile(client):
     }, follow_redirects=True)
     assert "問題を投稿しました" in response.get_data(as_text=True)
 
-    problem_id = 4
+    problem_id = next(
+        problem["id"]
+        for problem in client.application.config["DATA_STORE"].list("problems")
+        if problem["title"] == "テスト問題"
+    )
     response = client.post(f"/problems/{problem_id}/answer", data={"body": "答えは2です。"}, follow_redirects=True)
     assert "解答を投稿しました" in response.get_data(as_text=True)
 
@@ -69,7 +75,8 @@ def test_group_create_join_and_search(client):
     response = client.get("/groups")
     assert "定期テスト対策" in response.get_data(as_text=True)
 
-    response = client.post("/groups/1/problems/new", data={
+    group_id = client.application.config["DATA_STORE"].list("groups")[-1]["id"]
+    response = client.post(f"/groups/{group_id}/problems/new", data={
         "title": "グループ問題",
         "subject": "数学",
         "field": "確率",
@@ -79,3 +86,24 @@ def test_group_create_join_and_search(client):
         "explanation": "全6通りのうち一通りです。",
     }, follow_redirects=True)
     assert "問題を投稿しました" in response.get_data(as_text=True)
+
+
+def test_local_image_upload_and_retrieval(client):
+    login(client)
+    response = client.post("/problems/new", data={
+        "title": "画像つき問題",
+        "subject": "理科",
+        "field": "地学",
+        "difficulty": "基礎",
+        "body": "画像を確認してください。",
+        "answer": "",
+        "explanation": "",
+        "image": (BytesIO(b"fake png bytes"), "diagram.png", "image/png"),
+    }, content_type="multipart/form-data", follow_redirects=True)
+    assert response.status_code == 200
+    assert "画像つき問題" in response.get_data(as_text=True)
+
+    image_path = next(Path(client.application.config["UPLOAD_FOLDER"]).glob("*.png"))
+    media_response = client.get(f"/media/test/{image_path.name}")
+    assert media_response.status_code == 200
+    assert media_response.data == b"fake png bytes"
