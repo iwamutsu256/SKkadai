@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}マイページ - StudyBoard{% endblock %}
+{% block content %}
+<section class="profile-layout">
+  <aside class="card profile-card">
+    <div class="avatar">{{ user.display_name[0] }}</div>
+    <h1>{{ user.display_name }}</h1>
+    <p>{{ user.bio or "自己紹介を設定しましょう。" }}</p>
+    <div class="stats">
+      <div><strong>{{ posted }}</strong><span>投稿</span></div>
+      <div><strong>{{ answered }}</strong><span>解答</span></div>
+    </div>
+  </aside>
+  <div>
+    <section class="card streak-card">
+      <div>
+        <p class="eyebrow">学習ストリーク</p>
+        <h2>🔥 {{ streak }}日連続</h2>
+        <p>最長記録: {{ longest }}日</p>
+      </div>
+      <div class="activity-grid" aria-label="直近30日間の学習活動">
+        {% for offset in range(29,-1,-1) %}
+          {% set ns = namespace(day='') %}
+          {% set ns.day = (activity_map.keys() | first) %}
+        {% endfor %}
+      </div>
+    </section>
+    <section class="card goal-card">
+      <h2>今日の目標</h2>
+      {% if goal %}
+      <p>{{ goal.target_count }}回の{{ {"answer":"解答","post":"問題投稿","comment":"コメント"}[goal.goal_type] }}</p>
+      {% set percent = (goal_done * 100 // goal.target_count) if goal.target_count else 0 %}
+      {% if percent > 100 %}{% set percent = 100 %}{% endif %}
+      <div class="progress large"><span style="width:{{ percent }}%"></span></div>
+      <p>{{ goal_done }} / {{ goal.target_count }} 完了{% if goal_done >= goal.target_count %} 🎉 達成！{% endif %}</p>
+      {% else %}
+      <p>目標を設定しましょう。</p>
+      {% endif %}
+      <form method="post" action="{{ url_for('profile_goal') }}" class="goal-form">
+        <select name="goal_type">
+          <option value="answer">解答</option>
+          <option value="post">問題投稿</option>
+          <option value="comment">解説コメント</option>
+        </select>
+        <input name="target_count" type="number" min="1" max="100" value="{{ goal.target_count if goal else 3 }}" required>
+        <button type="submit">目標を更新</button>
+      </form>
+    </section>
+    <section class="card">
+      <h2>ブックマーク</h2>
+      {% for problem in bookmarks %}
+      <a class="list-link" href="{{ url_for('problem_detail', problem_id=problem.id) }}">{{ problem.title }}</a>
+      {% else %}
+      <p class="muted">ブックマークした問題はありません。</p>
+      {% endfor %}
+    </section>
+  </div>
+</section>
+<script id="activity-data" type="application/json">{{ activity_map | tojson }}</script>
+{% endblock %}

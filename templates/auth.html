@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}{{ "登録" if mode == "register" else "ログイン" }} - StudyBoard{% endblock %}
+{% block content %}
+<section class="auth-card card">
+  <h1>{{ "アカウント登録" if mode == "register" else "ログイン" }}</h1>
+  {% if mode == "login" %}
+  <p class="demo-note">デモアカウント: demo@example.com / demo1234</p>
+  {% endif %}
+  <form method="post">
+    <label>メールアドレス<input name="email" type="email" required></label>
+    {% if mode == "register" %}
+    <label>表示名<input name="display_name" required></label>
+    {% endif %}
+    <label>パスワード<input name="password" type="password" required></label>
+    <button type="submit">{{ "登録する" if mode == "register" else "ログイン" }}</button>
+  </form>
+  {% if mode == "register" %}
+  <p>登録済みですか？ <a href="{{ url_for('login') }}">ログイン</a></p>
+  {% else %}
+  <p>初めてですか？ <a href="{{ url_for('register') }}">アカウント登録</a></p>
+  {% endif %}
+</section>
+{% endblock %}

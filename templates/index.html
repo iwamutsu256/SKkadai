@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}StudyBoard - 一緒に問題を解こう{% endblock %}
+{% block content %}
+<section class="hero">
+  <div>
+    <p class="eyebrow">友達と一緒に学ぶ</p>
+    <h1>問題を出して、解いて、<br>理解を深めよう。</h1>
+    <p>高校の勉強を、目標と仲間で続けられる掲示板です。</p>
+    <div class="hero-actions">
+      <a class="button" href="{{ url_for('problems') }}">問題を探す</a>
+      {% if current_user %}
+      <a class="button secondary" href="{{ url_for('problem_new') }}">問題を出す</a>
+      {% endif %}
+    </div>
+  </div>
+  <div class="hero-card">
+    <strong>今日の学習</strong>
+    <div class="streak-badge">🔥 6日連続</div>
+    <div class="progress"><span style="width:66%"></span></div>
+    <small>今日の目標まであと1問</small>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>新着問題</h2><a href="{{ url_for('problems') }}">もっと見る</a></div>
+  <div class="problem-grid">
+    {% for problem in problems %}
+    <article class="card problem-card">
+      <div class="tags"><span>{{ problem.subject }}</span><span>{{ problem.difficulty }}</span></div>
+      <h3><a href="{{ url_for('problem_detail', problem_id=problem.id) }}">{{ problem.title }}</a></h3>
+      <p>{{ problem.body[:70] }}{% if problem.body|length > 70 %}...{% endif %}</p>
+      <div class="meta"><span>{{ problem.display_name }}</span><span>♡ {{ problem.like_count }}</span></div>
+    </article>
+    {% else %}
+    <p>まだ問題がありません。</p>
+    {% endfor %}
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>目標グループ</h2><a href="{{ url_for('groups') }}">すべて見る</a></div>
+  <div class="group-grid">
+    {% for group in groups %}
+    <a class="card group-card" href="{{ url_for('group_detail', group_id=group.id) }}">
+      <span class="group-icon">🎯</span>
+      <h3>{{ group.name }}</h3>
+      <p>{{ group.purpose }}</p>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

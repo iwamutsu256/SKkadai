@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}目標グループ - StudyBoard{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div><p class="eyebrow">仲間と続ける</p><h1>目標グループ</h1></div>
+  {% if current_user %}<a class="button" href="{{ url_for('group_new') }}">グループを作る</a>{% endif %}
+</section>
+<div class="group-grid">
+  {% for group in groups %}
+  <article class="card group-card">
+    <span class="group-icon">🎯</span>
+    <h2><a href="{{ url_for('group_detail', group_id=group.id) }}">{{ group.name }}</a></h2>
+    <p>{{ group.description }}</p>
+    <div class="meta"><span>{{ group.subject }}</span><span>{{ group.member_count }}人</span></div>
+  </article>
+  {% else %}
+  <p>公開グループはまだありません。</p>
+  {% endfor %}
+</div>
+{% endblock %}

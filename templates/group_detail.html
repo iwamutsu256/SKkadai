@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}{{ group.name }} - StudyBoard{% endblock %}
+{% block content %}
+<section class="group-hero card">
+  <div><p class="eyebrow">{{ group.purpose }}</p><h1>{{ group.name }}</h1><p>{{ group.description }}</p></div>
+  {% if current_user %}
+    {% if member %}
+      <span class="joined">参加中</span>
+    {% else %}
+      <form method="post" action="{{ url_for('group_join', group_id=group.id) }}"><button type="submit">参加する</button></form>
+    {% endif %}
+  {% endif %}
+</section>
+<section class="group-info card">
+  <div><strong>対象教科</strong><span>{{ group.subject or "未設定" }}</span></div>
+  <div><strong>目標日</strong><span>{{ group.target_date or "未設定" }}</span></div>
+  <div><strong>メンバー</strong><span>{{ group.member_count }}人</span></div>
+</section>
+<section>
+  <div class="section-head">
+    <h2>グループ内の問題</h2>
+    {% if member %}<a class="button" href="{{ url_for('problem_new', group_id=group.id) }}">問題を投稿</a>{% endif %}
+  </div>
+  <div class="problem-grid">
+    {% for problem in problems %}
+    <article class="card problem-card">
+      <div class="tags"><span>{{ problem.subject }}</span></div>
+      <h3><a href="{{ url_for('problem_detail', problem_id=problem.id) }}">{{ problem.title }}</a></h3>
+    </article>
+    {% else %}
+    <p class="muted">グループ内の問題はまだありません。</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

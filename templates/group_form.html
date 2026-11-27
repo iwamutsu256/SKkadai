@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}グループ作成 - StudyBoard{% endblock %}
+{% block content %}
+<section class="form-card card">
+  <h1>目標グループを作る</h1>
+  <form method="post">
+    <label>グループ名<input name="name" placeholder="例: ○○大学 合格目標" required></label>
+    <label>目的<input name="purpose" placeholder="例: 共通テスト対策" required></label>
+    <div class="form-grid">
+      <label>対象教科<input name="subject" placeholder="数学・英語"></label>
+      <label>目標日<input name="target_date" type="date"></label>
+    </div>
+    <label>公開範囲
+      <select name="visibility"><option value="public">公開</option><option value="private">招待制</option></select>
+    </label>
+    <label>説明<textarea name="description" rows="5"></textarea></label>
+    <button type="submit">グループを作成</button>
+  </form>
+</section>
+{% endblock %}

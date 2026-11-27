@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}{{ problem.title }} - StudyBoard{% endblock %}
+{% block content %}
+<article class="detail-layout">
+  <section class="card detail-main">
+    <div class="tags"><span>{{ problem.subject }}</span><span>{{ problem.field }}</span><span>{{ problem.difficulty }}</span></div>
+    <h1>{{ problem.title }}</h1>
+    <p class="byline">{{ problem.display_name }} が投稿</p>
+    <div class="problem-body">{{ problem.body }}</div>
+    {% if problem.answer %}
+    <details class="answer-panel">
+      <summary>正解・模範解答を見る</summary>
+      <strong>{{ problem.answer }}</strong>
+      {% if problem.explanation %}<p>{{ problem.explanation }}</p>{% endif %}
+    </details>
+    {% endif %}
+    <div class="actions">
+      {% if current_user %}
+      <form method="post" action="{{ url_for('problem_like', problem_id=problem.id) }}">
+        <button type="submit" class="{% if liked %}active{% endif %}">♡ いいね {{ problem.like_count }}</button>
+      </form>
+      <form method="post" action="{{ url_for('problem_bookmark', problem_id=problem.id) }}">
+        <button type="submit" class="{% if bookmarked %}active{% endif %}">{{ "ブックマーク済み" if bookmarked else "ブックマーク" }}</button>
+      </form>
+      {% endif %}
+      {% if current_user and current_user.id == problem.user_id %}
+      <a class="button secondary" href="{{ url_for('problem_edit', problem_id=problem.id) }}">編集</a>
+      <form method="post" action="{{ url_for('problem_delete', problem_id=problem.id) }}" onsubmit="return confirm('削除しますか？')">
+        <button class="danger" type="submit">削除</button>
+      </form>
+      {% endif %}
+    </div>
+  </section>
+
+  <aside class="card answer-section">
+    <h2>みんなの解答</h2>
+    {% if current_user %}
+    <form method="post" action="{{ url_for('answer_post', problem_id=problem.id) }}">
+      <textarea name="body" rows="4" placeholder="解答を入力" required></textarea>
+      <button type="submit">解答する</button>
+    </form>
+    {% else %}
+    <p><a href="{{ url_for('login') }}">ログイン</a>して解答しましょう。</p>
+    {% endif %}
+
+    {% for answer in answers %}
+    <article class="answer-card">
+      <div class="meta"><strong>{{ answer.display_name }}</strong><span>♡ {{ answer.like_count }}</span></div>
+      <p>{{ answer.body }}</p>
+      {% for comment in comments[answer.id] %}
+      <div class="comment"><strong>{{ comment.display_name }}</strong><p>{{ comment.body }}</p></div>
+      {% endfor %}
+      {% if current_user %}
+      <form method="post" action="{{ url_for('comment_post', answer_id=answer.id) }}" class="comment-form">
+        <input name="body" placeholder="コメントする" required>
+        <button type="submit">送信</button>
+      </form>
+      {% endif %}
+    </article>
+    {% else %}
+    <p class="muted">まだ解答がありません。</p>
+    {% endfor %}
+  </aside>
+</article>
+{% endblock %}

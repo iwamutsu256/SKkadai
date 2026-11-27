@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}{{ "問題を編集" if problem else "問題を投稿" }} - StudyBoard{% endblock %}
+{% block content %}
+<section class="form-card card">
+  <h1>{{ "問題を編集" if problem else "問題を投稿" }}</h1>
+  <form method="post">
+    {% if group_id %}<input type="hidden" name="group_id" value="{{ group_id }}">{% endif %}
+    <label>タイトル<input name="title" value="{{ problem.title if problem else '' }}" required></label>
+    <div class="form-grid">
+      <label>教科<input name="subject" value="{{ problem.subject if problem else '' }}" required></label>
+      <label>分野<input name="field" value="{{ problem.field if problem else '' }}"></label>
+      <label>難易度
+        <select name="difficulty">
+          {% for level in ["基礎","普通","発展"] %}
+          <option {% if problem and problem.difficulty == level %}selected{% endif %}>{{ level }}</option>
+          {% endfor %}
+        </select>
+      </label>
+    </div>
+    <label>問題文<textarea name="body" rows="6" required>{{ problem.body if problem else '' }}</textarea></label>
+    <label>正解・模範解答<input name="answer" value="{{ problem.answer if problem else '' }}"></label>
+    <label>解説<textarea name="explanation" rows="5">{{ problem.explanation if problem else '' }}</textarea></label>
+    <button type="submit">{{ "更新する" if problem else "投稿する" }}</button>
+  </form>
+</section>
+{% endblock %}

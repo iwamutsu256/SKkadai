@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}問題一覧 - StudyBoard{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div><p class="eyebrow">問題を探す</p><h1>みんなの問題</h1></div>
+  {% if current_user %}<a class="button" href="{{ url_for('problem_new') }}">問題を投稿</a>{% endif %}
+</section>
+<form class="filters" method="get">
+  <input name="q" value="{{ keyword }}" placeholder="問題を検索">
+  <select name="subject">
+    <option value="">すべての教科</option>
+    {% for row in subjects %}<option value="{{ row.subject }}" {% if row.subject == subject %}selected{% endif %}>{{ row.subject }}</option>{% endfor %}
+  </select>
+  <select name="sort">
+    <option value="new">新着順</option>
+    <option value="popular">人気順</option>
+  </select>
+  <button type="submit">絞り込む</button>
+</form>
+<div class="problem-grid">
+  {% for problem in problems %}
+  <article class="card problem-card">
+    <div class="tags"><span>{{ problem.subject }}</span><span>{{ problem.difficulty }}</span></div>
+    <h2><a href="{{ url_for('problem_detail', problem_id=problem.id) }}">{{ problem.title }}</a></h2>
+    <p>{{ problem.body[:120] }}{% if problem.body|length > 120 %}...{% endif %}</p>
+    <div class="meta"><span>{{ problem.display_name }}</span><span>♡ {{ problem.like_count }}</span></div>
+  </article>
+  {% else %}
+  <div class="empty card">検索条件に一致する問題はありません。</div>
+  {% endfor %}
+</div>
+{% endblock %}
